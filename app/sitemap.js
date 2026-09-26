@@ -1,0 +1,3 @@
+import {getCategories,getPublishedPosts} from "@/lib/posts";
+import {absoluteUrl} from "@/lib/site";
+export default async function sitemap(){const [posts,categories]=await Promise.all([getPublishedPosts(),getCategories()]);return[{url:absoluteUrl("/"),lastModified:new Date(),changeFrequency:"daily",priority:1},...categories.map(c=>({url:absoluteUrl("/category/"+encodeURIComponent(c.name)),lastModified:new Date(),changeFrequency:"weekly",priority:.7})),...posts.map(p=>({url:absoluteUrl("/blog/"+p.slug),lastModified:new Date(p.updated_at||p.published_at),changeFrequency:"monthly",priority:.8}))]}
