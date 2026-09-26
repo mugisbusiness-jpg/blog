@@ -1,0 +1,3 @@
+import Link from "next/link";
+import {SITE} from "@/lib/site";
+export default function Header(){return <header className="site-header"><div className="container nav"><Link href="/" className="brand" aria-label="CopyRaid Blog home"><img src={SITE.logo} alt="CopyRaid"/><span className="brand-divider"/><span className="brand-label">Blog</span></Link><nav className="nav-links" aria-label="Primary"><Link href="/category/Copyright%20Guides">Copyright</Link><Link href="/category/Creator%20Protection">Creators</Link><Link href="/category/Brand%20Protection">Brands</Link><a href={SITE.help}>Help Center</a><a className="nav-cta" href={SITE.main+"/report"}>Start a case</a></nav></div></header>}
