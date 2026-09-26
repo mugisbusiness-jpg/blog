@@ -33,7 +33,7 @@ Run these in the Supabase SQL Editor, in order:
 1. `supabase/migrations/001_blog.sql`
 2. `supabase/seed.sql`
 
-Then authorize your existing Supabase Auth account:
+Existing CopyRaid users with `profiles.role = 'admin'` are automatically added to `blog_admins` when the migration runs. If you ever need to add another blog-only admin manually:
 
 ```sql
 insert into public.blog_admins (user_id,email)
@@ -50,7 +50,7 @@ The schema creates a public Storage bucket called `blog-images`. Only users list
 ```
 NEXT_PUBLIC_SITE_URL=https://blog.copyraid.com
 NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
 Never expose a Supabase service-role key as a `NEXT_PUBLIC_` variable.
