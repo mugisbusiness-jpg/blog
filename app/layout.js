@@ -7,7 +7,7 @@ export const metadata={
   title:{default:"CopyRaid Blog — Copyright & Content Protection Guides",template:"%s | CopyRaid Blog"},
   description:SITE.description,
   alternates:{canonical:"/"},
-  icons:{icon:SITE.favicon,apple:SITE.favicon},
+  icons:{icon:"/copyraid-mark.svg",apple:"/copyraid-mark.svg"},
   openGraph:{type:"website",url:SITE.url,siteName:"CopyRaid Blog",title:"CopyRaid Blog — Copyright & Content Protection Guides",description:SITE.description},
   twitter:{card:"summary_large_image",title:"CopyRaid Blog",description:SITE.description},
   robots:{index:true,follow:true}
