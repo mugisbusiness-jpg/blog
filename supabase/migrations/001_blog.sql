@@ -26,6 +26,10 @@ create table if not exists public.blog_posts (
   updated_at timestamptz not null default now()
 );
 
+grant select on public.blog_posts to anon;
+grant select,insert,update,delete on public.blog_posts to authenticated;
+grant select on public.blog_admins to authenticated;
+
 create or replace function public.touch_blog_post()
 returns trigger language plpgsql as $$
 begin
@@ -43,28 +47,35 @@ alter table public.blog_posts enable row level security;
 
 drop policy if exists "Public can read published blog posts" on public.blog_posts;
 create policy "Public can read published blog posts" on public.blog_posts
-for select using (status='published');
+for select to anon,authenticated using (status='published');
 
 drop policy if exists "Admins can read all blog posts" on public.blog_posts;
 create policy "Admins can read all blog posts" on public.blog_posts
-for select to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for select to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can insert blog posts" on public.blog_posts;
 create policy "Admins can insert blog posts" on public.blog_posts
-for insert to authenticated with check (exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for insert to authenticated with check (exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can update blog posts" on public.blog_posts;
 create policy "Admins can update blog posts" on public.blog_posts
-for update to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=auth.uid()))
-with check (exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for update to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())))
+with check (exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can delete blog posts" on public.blog_posts;
 create policy "Admins can delete blog posts" on public.blog_posts
-for delete to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for delete to authenticated using (exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can read own admin row" on public.blog_admins;
 create policy "Admins can read own admin row" on public.blog_admins
-for select to authenticated using (user_id=auth.uid());
+for select to authenticated using (user_id=(select auth.uid()));
+
+insert into public.blog_admins(user_id,email)
+select p.id,u.email
+from public.profiles p
+join auth.users u on u.id=p.id
+where p.role='admin'
+on conflict(user_id) do update set email=excluded.email;
 
 insert into storage.buckets(id,name,public)
 values('blog-images','blog-images',true)
@@ -72,16 +83,17 @@ on conflict(id) do update set public=true;
 
 drop policy if exists "Public can read blog images" on storage.objects;
 create policy "Public can read blog images" on storage.objects
-for select using (bucket_id='blog-images');
+for select to public using (bucket_id='blog-images');
 
 drop policy if exists "Admins can upload blog images" on storage.objects;
 create policy "Admins can upload blog images" on storage.objects
-for insert to authenticated with check (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for insert to authenticated with check (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can update blog images" on storage.objects;
 create policy "Admins can update blog images" on storage.objects
-for update to authenticated using (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for update to authenticated using (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())))
+with check (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
 
 drop policy if exists "Admins can delete blog images" on storage.objects;
 create policy "Admins can delete blog images" on storage.objects
-for delete to authenticated using (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=auth.uid()));
+for delete to authenticated using (bucket_id='blog-images' and exists(select 1 from public.blog_admins a where a.user_id=(select auth.uid())));
