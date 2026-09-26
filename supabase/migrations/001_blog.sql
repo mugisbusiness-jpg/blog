@@ -31,7 +31,10 @@ grant select,insert,update,delete on public.blog_posts to authenticated;
 grant select on public.blog_admins to authenticated;
 
 create or replace function public.touch_blog_post()
-returns trigger language plpgsql as $$
+returns trigger
+language plpgsql
+set search_path = ''
+as $
 begin
   new.updated_at=now();
   if new.status='published' and new.published_at is null then new.published_at=now(); end if;
@@ -47,7 +50,7 @@ alter table public.blog_posts enable row level security;
 
 drop policy if exists "Public can read published blog posts" on public.blog_posts;
 create policy "Public can read published blog posts" on public.blog_posts
-for select to anon,authenticated using (status='published');
+for select to anon using (status='published');
 
 drop policy if exists "Admins can read all blog posts" on public.blog_posts;
 create policy "Admins can read all blog posts" on public.blog_posts
