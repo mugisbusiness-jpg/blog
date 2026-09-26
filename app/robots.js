@@ -1,2 +1,15 @@
-import {SITE} from "@/lib/site";
-export default function robots(){return{rules:[{userAgent:"*",allow:"/",disallow:["/admin","/admin/"]}],sitemap:SITE.url.replace(/\/$/,"")+"/sitemap.xml",host:SITE.url}}
+const BASE_URL="https://blog.copyraid.com";
+
+export default function robots(){
+  return {
+    rules:[
+      {
+        userAgent:"*",
+        allow:"/",
+        disallow:["/admin","/admin/"]
+      }
+    ],
+    sitemap:BASE_URL+"/sitemap.xml",
+    host:BASE_URL
+  };
+}
