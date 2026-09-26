@@ -1,0 +1,4 @@
+import {getPublishedPosts} from "@/lib/posts";
+import {SITE,absoluteUrl} from "@/lib/site";
+const esc=s=>String(s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+export async function GET(){const posts=await getPublishedPosts();const items=posts.slice(0,50).map(p=>`<item><title>${esc(p.title)}</title><link>${absoluteUrl("/blog/"+p.slug)}</link><guid>${absoluteUrl("/blog/"+p.slug)}</guid><pubDate>${new Date(p.published_at).toUTCString()}</pubDate><description>${esc(p.excerpt)}</description></item>`).join("");const xml=`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>CopyRaid Blog</title><link>${SITE.url}</link><description>${esc(SITE.description)}</description>${items}</channel></rss>`;return new Response(xml,{headers:{"Content-Type":"application/rss+xml; charset=utf-8","Cache-Control":"public, s-maxage=900"}})}
